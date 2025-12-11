@@ -419,11 +419,10 @@ class SimInfo:
         )
         self.LMUData = LMUObjectOut.from_buffer(self._lmu_data)
 
-    def save(self):
+    def save(self, filename: str):
         """Save buffer data to file"""
-        with open("LMU_SHARED_MEMORY_FILE.txt", "wb") as f:
-            data = bytearray(self._lmu_data)
-            f.write(data)
+        with open(filename, "wb") as output:
+            output.write(bytes(self._lmu_data))
 
     def close(self):
         """Close memory map"""
@@ -441,7 +440,9 @@ class SimInfo:
 def test():
     """Example usage"""
     info = SimInfo()
-    #info.save()
+
+    # Uncomment to save raw memory data to file
+    # info.save("LMU_SHARED_MEMORY_FILE.txt")
 
     generic_data = info.LMUData.generic
     scor_data = info.LMUData.scoring

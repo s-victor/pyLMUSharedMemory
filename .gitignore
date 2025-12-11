@@ -1,0 +1,21 @@
+# ignore list
+
+__pycache__/
+
+# pipenv stuff
+Pipfile
+Pipfile.lock
+
+# pylint stuff
+pylintrc
+
+# local config file
+*.json
+*.csv
+
+# random file
+test*.py
+*.7z
+*.zip
+*.log
+*.db

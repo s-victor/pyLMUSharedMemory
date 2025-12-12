@@ -41,6 +41,7 @@ class MMapControl:
         "_mmap_buffer",
         "_struct",
         "_buffer",
+        "_realtime",
         "update",
         "data",
     )
@@ -56,6 +57,7 @@ class MMapControl:
         self._mmap_buffer = None
         self._struct = data_struct
         self._buffer = bytearray()
+        self._realtime = None
         self.update = None
         self.data = None
 
@@ -75,6 +77,7 @@ class MMapControl:
             self.update = self.__buffer_share
         else:
             self._buffer[:] = self._mmap_buffer
+            self._realtime = self._struct.from_buffer(self._mmap_buffer)
             self.data = self._struct.from_buffer(self._buffer)
             self.update = self.__buffer_copy
 
@@ -87,6 +90,7 @@ class MMapControl:
         Create a final accessible mmap data copy before closing mmap instance.
         """
         self.data = self._struct.from_buffer_copy(self._mmap_buffer)
+        self._realtime = None
         try:
             self._mmap_buffer.close()
             logger.info("sharedmemory: CLOSED: %s", self._mmap_name)
@@ -101,8 +105,11 @@ class MMapControl:
         """Copy buffer access, helps avoid data desync"""
         # Check if game updating data
         if (
-            self.data.generic.events.SME_UPDATE_SCORING
-            or self.data.generic.events.SME_UPDATE_TELEMETRY
+            self._realtime.generic.events.SME_UPDATE_SCORING
+            or self._realtime.generic.events.SME_UPDATE_TELEMETRY
+        ) and (
+            self._realtime.scoring.scoringInfo.mNumVehicles
+            == self._realtime.telemetry.activeVehicles
         ):
             self._buffer[:] = self._mmap_buffer
 
